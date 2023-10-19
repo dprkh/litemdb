@@ -1,0 +1,16 @@
+[package]
+name = "litemdb"
+version = "0.1.0"
+edition = "2021"
+description = "A safe wrapper over a subset of LMDB's functionality"
+license = "MIT"
+repository = "https://github.com/dprkh/litemdb"
+keywords = ["sled", "sqlite", "redis", "lmdb", "rocksdb"]
+categories = ["api-bindings", "database"]
+
+[build-dependencies]
+bindgen = "0.68"
+cc = "1.0"
+
+[dependencies]
+bitflags = "2.4"
