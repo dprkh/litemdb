@@ -12,7 +12,7 @@ doc:
     cargo doc
 
 test:
-    cargo test
+    cargo test --doc
 
 tree:
     cargo tree --edges normal,no-proc-macro \

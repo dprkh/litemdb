@@ -1,7 +1,9 @@
 #![forbid(
     clippy::undocumented_unsafe_blocks,
     clippy::unnecessary_safety_comment,
-    clippy::unnecessary_safety_doc
+    clippy::unnecessary_safety_doc,
+    rustdoc::broken_intra_doc_links,
+    rustdoc::private_intra_doc_links
 )]
 #![allow(clippy::missing_const_for_fn)]
 
@@ -102,7 +104,7 @@ pub mod environment {
         ///
         /// # Panics
         ///
-        /// * Panics if [`path`][Options::path] contains a null byte.
+        /// * Panics if `path` contains a null byte.
         ///
         /// [0]: http://www.lmdb.tech/doc/group__mdb.html#gaad6be3d8dcd4ea01f8df436f41d158d4
         /// [1]: http://www.lmdb.tech/doc/group__mdb.html#ga32a193c6bf4d7d5c5d579e71f22e9340
@@ -176,8 +178,8 @@ pub mod environment {
         ///   [`Transaction`].
         ///
         /// [0]: http://www.lmdb.tech/doc/group__internal.html#gaec09fc4062fc4d99882f7f7256570bdb
-        /// [1]: Self::abort
-        /// [2]: Self::commit
+        /// [1]: Transaction::abort
+        /// [2]: Transaction::commit
         #[inline]
         pub fn begin_transaction(
             self: &Arc<Self>,
@@ -215,8 +217,23 @@ pub mod transaction {
     use crate::{environment::Environment, sys, Error, Result};
 
     pub struct DataView<'a> {
-        // We hold a shared reference to [`Transaction`] and thus guarantee that no operation that
-        // requires unique access to it will occur and that it won't be discarded.
+        /// We hold a shared reference to [`Transaction`] and thus guarantee
+        /// that no operation that requires unique access to it will
+        /// occur and that it won't be discarded.
+        ///
+        /// ```compile_fail
+        /// use std::sync::Arc;
+        ///
+        /// fn test(env: Arc<litemdb::Environment>) -> litemdb::Result<()> {
+        ///     let mut txn = env.begin_transaction(litemdb::transaction::Flags::empty())?;
+        ///     if let Some(view) = txn.get(b"key")? {
+        ///         txn.del(b"key")?;
+        ///         // compiler error
+        ///         println!("{:?}", view.as_ref());
+        ///     }
+        ///     Ok(())
+        /// }
+        /// ```
         _txn: &'a Transaction,
         data: &'a [u8],
     }
